@@ -1,0 +1,22 @@
+import pyproj
+import numpy as np
+
+subways_loc = pd.read_csv('subways_loc.csv')
+
+NAD83_LI = pyproj.Proj(init = "EPSG:3627", preserve_units=True)
+NYS_LIZ = pyproj.Proj(init = "EPSG:2263", preserve_units=True)
+
+def coord_transform(df):
+    x = pd.Series()
+    y = pd.Series()
+    for idx, val in enumerate(df['Latitude']):
+        x1, y1 = pyproj.transform(NAD83_LI, NYS_LIZ, df['Longitude'][idx], df['Latitude'][idx])
+        x.set_value(idx, x1)
+        y.set_value(idx, y1)
+    df['x'] = x
+    df['y'] = y
+    return df
+    
+subways_loc_trans = coord_transform(subways_loc)
+
+print(subways_loc_trans.head(1))
